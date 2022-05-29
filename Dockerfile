@@ -16,19 +16,19 @@ env AFL_FUZZ=yes
 RUN make
 
 ## Prepare all library dependencies for copy
-#RUN mkdir /deps
-#RUN cp `ldd ./src/gregorio-6* | grep so | sed -e '/^[^\t]/ d' | sed -e 's/\t//' | sed -e 's/.*=..//' | sed -e 's/ (0.*)//' | sort | uniq` /deps 2>/dev/null || :
-#RUN cp `ldd /usr/local/bin/afl-fuzz | grep so | sed -e '/^[^\t]/ d' | sed -e 's/\t//' | sed -e 's/.*=..//' | sed -e 's/ (0.*)//' | sort | uniq` /deps 2>/dev/null || :
+RUN mkdir /deps
+RUN cp `ldd ./tests/fuzzy/ws_file | grep so | sed -e '/^[^\t]/ d' | sed -e 's/\t//' | sed -e 's/.*=..//' | sed -e 's/ (0.*)//' | sort | uniq` /deps 2>/dev/null || :
+RUN cp `ldd /usr/local/bin/afl-fuzz | grep so | sed -e '/^[^\t]/ d' | sed -e 's/\t//' | sed -e 's/.*=..//' | sed -e 's/ (0.*)//' | sort | uniq` /deps 2>/dev/null || :
 
 ## Package Stage
 
-#FROM --platform=linux/amd64 ubuntu:20.04
-#COPY --from=builder /usr/local/bin/afl-fuzz /afl-fuzz
-#COPY --from=builder /gregorio/src/gregorio-6* /gregorio
-#COPY --from=builder /deps /usr/lib
-#COPY --from=builder /gregorio/corpus /tests
+FROM --platform=linux/amd64 ubuntu:20.04
+COPY --from=builder /usr/local/bin/afl-fuzz /afl-fuzz
+COPY --from=builder /wsServer/tests/fuzzy/ws_file /ws_file
+COPY --from=builder /deps /usr/lib
+COPY --from=builder /wsServer/tests/fuzzy/in /tests
 
-#env AFL_SKIP_CPUFREQ=1
+env AFL_SKIP_CPUFREQ=1
 
-#ENTRYPOINT ["/afl-fuzz", "-i", "/tests", "-o", "/out"]
-#CMD ["/gregorio", "--stdin", "--stdout"]
+ENTRYPOINT ["/afl-fuzz", "-i", "/tests", "-o", "/out"]
+CMD ["/ws_file", "@@"]

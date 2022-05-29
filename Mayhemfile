@@ -1,0 +1,9 @@
+image: ghcr.io/capuanob/wsserver-fuzz:latest
+project: wsserver
+target: ws-file
+tests:
+    - file://tests/fuzzy/in
+
+cmds:
+  - cmd: /ws_file @@
+    afl: true
