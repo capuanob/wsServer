@@ -23,15 +23,11 @@ LIB      =  $(WSDIR)/libws.a
 .PHONY: all run_fuzzy clean
 
 # Examples
-all: ws_file run_fuzzy
+all: ws_file
 
 # ws_file
 ws_file: ws_file.c $(LIB)
 	$(CC) $(CFLAGS) $(LDFLAGS) ws_file.c -o ws_file $(LIB)
-
-# Run fuzzing tests
-run_fuzzy: ws_file
-	@bash run-fuzzy.sh
 
 # Clean
 clean:
