@@ -49,19 +49,11 @@ endif
 endif
 
 # Check if AFL fuzzing enabled
-ifeq ($(AFL_FUZZ), yes)
+ifneq ($(filter yes,$(AFL_FUZZ) $(MAYHEM_FUZZ)),)
     CC = afl-gcc
     CFLAGS := $(filter-out -O2,$(CFLAGS))
     CFLAGS += -DVERBOSE_MODE -DAFL_FUZZ -g
     $(info [+] AFL Fuzzing build enabled)
-endif
-
-# Check if Mayhem fuzzing enabled
-ifeq ($(MAYHEM_FUZZ), yes)
-    CC = afl-gcc
-    CFLAGS := $(filter-out -O2,$(CFLAGS))
-    CFLAGS += -DVERBOSE_MODE -DMAYHEM_FUZZ -g
-    $(info [+] Mayhem Fuzzing build enabled)
 endif
 
 # Check if UTF-8 validation is enabled
@@ -95,7 +87,7 @@ TOYWS  = $(CURDIR)/extra/toyws
 	$(CC) $< $(CFLAGS) -c -o $@
 
 # All
-ifeq ($(AFL_FUZZ),no)
+ifeq ($(AFL_FUZZ)$(MAYHEM_FUZZ),nono)
 all: libws.a examples
 else
 all: libws.a fuzzy
@@ -117,7 +109,7 @@ tests_check:
 
 # Fuzzing tests
 fuzzy: libws.a
-	$(MAKE) -C tests/fuzzy
+	$(MAKE) -C tests/fuzzy AFL_FUZZ=$(AFL_FUZZ) MAYHEM_FUZZ=$(MAYHEM_FUZZ)
 
 # ToyWS client
 toyws_test: $(TOYWS)/tws_test.o $(TOYWS)/toyws.o
