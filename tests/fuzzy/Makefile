@@ -16,18 +16,31 @@
 CC       = afl-gcc
 WSDIR    = $(CURDIR)/../../
 INCLUDE  = -I $(WSDIR)/include
-CFLAGS  +=  -Wall -Wextra -g -DVERBOSE_MODE -DAFL_FUZZ
+ifeq ($(AFL_FUZZ), yes)
+	CFLAGS  +=  -Wall -Wextra -g -DVERBOSE_MODE -DAFL_FUZZ
+endif
+ifeq ($(MAYHEM_FUZZ), yes)
+	CFLAGS += -Wall -Wextra -g -DVERBOSE_MODE -DMAYHEM_FUZZ
+endif
 CFLAGS  +=  $(INCLUDE) -std=c99 -pthread -pedantic
 LIB      =  $(WSDIR)/libws.a
 
 .PHONY: all run_fuzzy clean
 
 # Examples
+ifeq ($(AFL_FUZZ), yes)
+all: ws_file run_fuzzy
+else
 all: ws_file
+endif
 
 # ws_file
 ws_file: ws_file.c $(LIB)
 	$(CC) $(CFLAGS) $(LDFLAGS) ws_file.c -o ws_file $(LIB)
+
+# Run fuzzing tests
+run_fuzzy: ws_file
+	@bash run-fuzzy.sh
 
 # Clean
 clean:

@@ -24,6 +24,7 @@ LIB       =  libws.a
 MCSS_DIR ?= /usr/bin/
 MANPAGES  = $(CURDIR)/doc/man/man3
 AFL_FUZZ ?= no
+MAYHEM_FUZZ ?= no
 VERBOSE_EXAMPLES ?= yes
 VALIDATE_UTF8 ?= yes
 
@@ -40,12 +41,27 @@ else
 	LIBDIR = $(PREFIX)/lib
 endif
 
+# Ensure both AFL and Mayhem fuzzing are not enabled
+ifeq ($(AFL_FUZZ), yes)
+ifeq ($(MAYHEM_FUZZ), yes)
+	$(error [-] Can not build with both AFL and Mayhem Fuzzing)
+endif
+endif
+
 # Check if AFL fuzzing enabled
 ifeq ($(AFL_FUZZ), yes)
     CC = afl-gcc
     CFLAGS := $(filter-out -O2,$(CFLAGS))
     CFLAGS += -DVERBOSE_MODE -DAFL_FUZZ -g
     $(info [+] AFL Fuzzing build enabled)
+endif
+
+# Check if Mayhem fuzzing enabled
+ifeq ($(MAYHEM_FUZZ), yes)
+    CC = afl-gcc
+    CFLAGS := $(filter-out -O2,$(CFLAGS))
+    CFLAGS += -DVERBOSE_MODE -DMAYHEM_FUZZ -g
+    $(info [+] Mayhem Fuzzing build enabled)
 endif
 
 # Check if UTF-8 validation is enabled

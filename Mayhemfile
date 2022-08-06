@@ -1,7 +1,6 @@
-image: ghcr.io/capuanob/wsserver-fuzz:latest
 project: wsserver
 target: ws-file
-tests:
+testsuite:
     - file://tests/fuzzy/in
 
 cmds:
